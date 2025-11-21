@@ -74,24 +74,26 @@ sudoif command *args:
 #   $target_image - The tag you want to apply to the image (default: $image_name).
 #   $tag - The tag for the image (default: $default_tag).
 #   $base_image - The base image to build from (default: ghcr.io/ublue-os/bazzite-dx:latest).
+#   $variant - The variant to build (cosmic or cosmic-nvidia, default: cosmic).
 #
 # The script constructs the version string using the tag and the current date.
 # If the git working directory is clean, it also includes the short SHA of the current HEAD.
 #
-# just build $target_image $tag $base_image
+# just build $target_image $tag $base_image $variant
 #
 # Example usage:
-#   just build bazzite-cosmic latest ghcr.io/ublue-os/bazzite-dx:latest
+#   just build bazzite-cosmic latest ghcr.io/ublue-os/bazzite-dx:latest cosmic
 #
-# This will build an image 'bazzite-cosmic:latest' based on bazzite-dx.
+# This will build an image 'bazzite-cosmic:latest' based on bazzite-dx with cosmic variant.
 #
 
 # Build the image using the specified parameters
-build $target_image=image_name $tag=default_tag $base_image="ghcr.io/ublue-os/bazzite-dx:latest":
+build $target_image=image_name $tag=default_tag $base_image="ghcr.io/ublue-os/bazzite-dx:latest" $variant="cosmic":
     #!/usr/bin/env bash
 
     BUILD_ARGS=()
     BUILD_ARGS+=("--build-arg" "BASE_IMAGE=${base_image}")
+    BUILD_ARGS+=("--build-arg" "VARIANT=${variant}")
     if [[ -z "$(git status -s)" ]]; then
         BUILD_ARGS+=("--build-arg" "SHA_HEAD_SHORT=$(git rev-parse --short HEAD)")
     fi
@@ -101,6 +103,12 @@ build $target_image=image_name $tag=default_tag $base_image="ghcr.io/ublue-os/ba
         --pull=newer \
         --tag "${target_image}:${tag}" \
         .
+
+# Build both variants
+build-all:
+    #!/usr/bin/env bash
+    just build bazzite-cosmic latest ghcr.io/ublue-os/bazzite-dx:latest cosmic
+    just build bazzite-cosmic-nvidia latest ghcr.io/ublue-os/bazzite-dx-nvidia:latest cosmic-nvidia
 
 # Command: _rootful_load_image
 # Description: This script checks if the current user is root or running under sudo. If not, it attempts to resolve the image tag using podman inspect.

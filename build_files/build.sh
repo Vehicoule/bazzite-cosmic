@@ -1,57 +1,123 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status.
+# Treat unset variables as an error.
+# Exit on errors within pipes.
 set -ouex pipefail
 
-### Install packages
+# Function to log messages with a timestamp for better tracking
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"
+}
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/39/x86_64/repoview/index.html&protocol=https&redirect=1
+# Function to handle errors by logging them and exiting the script
+handle_error() {
+    log "ERROR: $1"
+    exit 1
+}
 
-# Remove xwaylandvideobridge package
-dnf5 remove -y xwaylandvideobridge
+# Function to clean up space aggressively
+cleanup_space() {
+    log "Cleaning up disk space..."
+    dnf5 clean all || true
+    rm -rf /var/cache/dnf/* || true
+    rm -rf /tmp/* || true
+    rm -rf /var/tmp/* || true
+    journalctl --vacuum-time=1h || true
+}
 
-# Gets the mandatory packages installed in kde-desktop and removes them.
-dnf5 group info kde-desktop | \
-    sed -n '/^Mandatory packages\s*:/,/^\(Default\|Optional\) packages\s*:/ {
-        /^\(Default\|Optional\) packages\s*:/q  # Quit if we hit Default/Optional header
-        s/^.*:[[:space:]]*//p
-    }' | \
-    xargs dnf5 remove -y
+# Get base image from build argument (set by Containerfile)
+BASE_IMAGE="${BASE_IMAGE:-ghcr.io/ublue-os/bazzite-dx:latest}"
+VARIANT="${VARIANT:-cosmic}"
+log "Starting Bazzite Cosmic build process with base image: $BASE_IMAGE"
+log "Building variant: $VARIANT"
 
-# Clean up package cache
-dnf5 clean all && \
-rm -rf /var/cache/dnf/*
+if [[ "${VARIANT}" == "cosmic" || "${VARIANT}" == "cosmic-nvidia" ]]; then
 
-# Install Cosmic desktop environment
-dnf5 group install -y cosmic-desktop cosmic-desktop-apps
+# --- Section 1: Install Cosmic Desktop and Essential Tools in Single Layer ---
+log "Installing Cosmic desktop environment and essential tools..."
 
-# Clean up package cache again
-dnf5 clean all && \
-rm -rf /var/cache/dnf/*
+# Install everything in fewer operations to reduce layers, excluding Firefox to avoid conflicts
+dnf5 install -y --exclude=firefox @cosmic-desktop-environment \
+    neovim ncdu gamemode git curl wget htop btop ffmpeg vlc || handle_error "Failed to install core packages"
 
-# Install additional Cosmic desktop environment packages
-dnf5 install -y @cosmic-desktop-environment
-dnf5 clean all && \
-rm -rf /var/cache/dnf/*
+# Clean up immediately after major installation
+cleanup_space
 
-# Other useful packages
-dnf5 install -y \
-    neovim \
-    ncdu \
-    NetworkManager-tui
+# --- Section 2: Install COPR Applications ---
+log "Installing applications from COPR repositories..."
 
-# Enable Cosmic greeter and disable default display manager
-systemctl disable display-manager && systemctl enable cosmic-greeter.service -f
+# Install Zed editor
+if dnf5 copr enable -y che/zed; then
+    dnf5 install -y zed && dnf5 copr disable -y che/zed
+    log "Zed editor installed successfully"
+else
+    log "Warning: Failed to enable che/zed COPR repository"
+fi
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
+# Install LACT (AMD GPU control tool)
+if dnf5 copr enable -y ilyaz/LACT; then
+    dnf5 install -y lact && dnf5 copr disable -y ilyaz/LACT
+    log "LACT installed successfully"
+else
+    log "Warning: Failed to enable ilyaz/LACT COPR repository"
+fi
 
-#### Example for enabling a System Unit File
+# --- Section 3: NVIDIA Variant Specific Packages ---
+if [[ "${VARIANT}" == "cosmic-nvidia" ]]; then
+    log "Installing NVIDIA-specific packages for cosmic-nvidia variant..."
+    
+    # Install NVIDIA packages in single operation
+    dnf5 install -y nvidia-driver nvidia-settings nvidia-smi akmod-nvidia xorg-x11-drv-nvidia-cuda || log "Warning: Failed to install some NVIDIA packages"
+    log "NVIDIA packages installation completed"
+fi
 
-systemctl enable podman.socket
+# --- Section 4: Final Cleanup ---
+cleanup_space
+
+# --- Section 5: Create Nix directory (without installation) ---
+log "Creating Nix directory structure..."
+mkdir -p /nix
+log "Nix directory created at /nix"
+
+# --- Section 6: Configure System Services ---
+log "Configuring system services..."
+
+# Disable other display managers to prevent conflicts with Cosmic's greeter
+systemctl disable display-manager || log "Warning: Failed to disable display-manager"
+systemctl disable gdm || log "Warning: gdm service not found or already disabled"
+systemctl disable sddm || log "Warning: sddm service not found or already disabled"
+
+# Enable Cosmic display manager, LACT daemon, and Podman socket
+systemctl enable cosmic-greeter || handle_error "Failed to enable cosmic-greeter"
+systemctl enable lactd || handle_error "Failed to enable lactd"
+systemctl enable podman.socket || handle_error "Failed to enable podman.socket"
+
+# NVIDIA variant specific services
+if [[ "${VARIANT}" == "cosmic-nvidia" ]]; then
+    log "Configuring NVIDIA-specific services..."
+    systemctl enable nvidia-persistenced || log "Warning: Failed to enable nvidia-persistenced"
+    systemctl enable nvidia-fallback || log "Warning: Failed to enable nvidia-fallback"
+fi
+
+fi
+
+# --- Final Cleanup ---
+cleanup_space
+
+# --- Final Summary ---
+log "Bazzite Cosmic build completed successfully!"
+log "Base Image: $BASE_IMAGE"
+log "Variant: $VARIANT"
+log "Installed components:"
+log "  - Cosmic Desktop Environment"
+log "  - Nix Package Manager directory"
+log "  - Development Tools (Git, Neovim, Zed)"
+log "  - System Utilities (htop, btop, ncdu, etc.)"
+log "  - Multimedia Tools (VLC, ffmpeg)"
+log "  - Gaming Support (Gamemode)"
+log "  - GPU Control (LACT)"
+
+if [[ "${VARIANT}" == "cosmic-nvidia" ]]; then
+    log "  - NVIDIA Drivers and Support"
+fi

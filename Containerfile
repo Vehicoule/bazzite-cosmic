@@ -9,6 +9,10 @@ FROM ${BASE_IMAGE}
 # Re-declare ARG to make it visible in this build stage
 ARG BASE_IMAGE
 
+# Set variant based on base image name
+ARG VARIANT=cosmic
+ENV VARIANT=${VARIANT}
+
 ## Other possible base images include:
 # FROM ghcr.io/ublue-os/bazzite-dx-nvidia:latest
 # FROM ghcr.io/ublue-os/bazzite:latest

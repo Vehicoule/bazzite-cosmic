@@ -33,8 +33,10 @@ jobs:
           # Base variants
           - base_image: "ghcr.io/ublue-os/bazzite-dx:latest"
             image_name: "bazzite-cosmic"
+            variant: "cosmic"
           - base_image: "ghcr.io/ublue-os/bazzite-dx-nvidia:latest"
             image_name: "bazzite-cosmic-nvidia"
+            variant: "cosmic-nvidia"
 
     permissions:
       contents: read
@@ -119,9 +121,10 @@ jobs:
         with:
           containerfiles: |
             ./Containerfile
-          # Pass the base image as a build argument
+          # Pass the base image and variant as build arguments
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
+            VARIANT=${{ matrix.variant }}
           # Use the matrix image_name for a more descriptive image name
           image: ${{ matrix.image_name }}
           tags: ${{ steps.metadata.outputs.tags }}
