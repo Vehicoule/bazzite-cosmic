@@ -99,11 +99,13 @@ cleanup_space
 
 # --- Section 6: Install Determinate Nix ---
 log "Installing Nix ..."
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
-  sh -s -- install linux \
-  --determinate \
-  --init none \
-  --no-confirm \
+curl -L https://github.com/DavHau/nix-portable/releases/latest/download/nix-portable-$(uname -m) > ./nix-portable
+chmod +x ./nix-portable
+
+# Create symlinks for common nix commands
+ln -s ./nix-portable ./nix
+ln -s ./nix-portable ./nix-shell
+ln -s ./nix-portable ./nix-run
 
 # Add Nix to PATH for this build session
 export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
