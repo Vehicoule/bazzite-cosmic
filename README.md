@@ -1,149 +1,49 @@
-# 🚀 Bazzite Cosmic Images
+# Bazzite Cosmic Images
 
-<div align="center">
+Custom [bootc](https://github.com/bootc-dev/bootc) images that combine Bazzite's gaming optimizations with [Cosmic](https://github.com/pop-os/cosmic-epoch) desktop environment.
 
-![Bazzite Cosmic](https://img.shields.io/badge/Bazzite-Cosmic-blue?style=for-the-badge&logo=fedora)
-![Cosmic Desktop](https://img.shields.io/badge/Cosmic-Desktop-purple?style=for-the-badge&logo=pop-os)
-![Bootc](https://img.shields.io/badge/Bootc-Ready-green?style=for-the-badge)
+## Images
 
-</div>
-
-This repository builds custom [bootc](https://github.com/bootc-dev/bootc) images that combine the gaming and development optimizations of [Bazzite](https://github.com/ublue-os/bazzite) with the modern [Cosmic](https://github.com/pop-os/cosmic-epoch) desktop environment. These images replace the default KDE desktop with Cosmic while preserving Bazzite's hardware support and gaming features.
-
-## ✨ Features
-
-- 🎮 **Gaming Optimized** - Built on Bazzite DX with all gaming enhancements
-- 🖥️ **Modern Desktop** - Latest Cosmic desktop environment with Wayland compositor
-- 🔧 **Developer Ready** - Includes development tools and utilities out of the box
-- 📦 **Package Manager** - Nix directory structure for advanced package management
-- 🎯 **GPU Support** - Optimized for both AMD and NVIDIA hardware
-- 🚀 **Performance Tuned** - Btrfs filesystem and performance optimizations
-
-## 🎯 Available Images
-
-### 📦 Base Variant
-<details>
-<summary><strong>bazzite-cosmic</strong> - Bazzite DX with Cosmic desktop</summary>
-
-Perfect for general use, development, and gaming without proprietary NVIDIA drivers.
+### bazzite-cosmic
+Bazzite DX with Cosmic desktop. For general use and gaming without NVIDIA.
 
 ```bash
 sudo bootc switch ghcr.io/<username>/bazzite-cosmic:latest
 ```
 
-**Includes:**
-- Cosmic Desktop Environment
-- Development Tools (Neovim, Git, Zed)
-- System Utilities (htop, btop, ncdu)
-- Gaming Support (Gamemode)
-- Multimedia Tools (VLC, ffmpeg)
-- GPU Control (LACT for AMD)
-
-</details>
-
-### 🎮 NVIDIA Variant  
-<details>
-<summary><strong>bazzite-cosmic-nvidia</strong> - Bazzite DX NVIDIA with Cosmic desktop</summary>
-
-Optimized for NVIDIA GPUs with proprietary drivers and CUDA support.
+### bazzite-cosmic-nvidia  
+Bazzite DX NVIDIA with Cosmic desktop. For NVIDIA GPUs.
 
 ```bash
 sudo bootc switch ghcr.io/<username>/bazzite-cosmic-nvidia:latest
 ```
 
-**Includes everything from base variant plus:**
-- NVIDIA proprietary drivers
-- CUDA support
-- NVIDIA settings and control tools
-- GPU persistence and fallback services
+## Setup
 
-</details>
+1. Fork this repository
+2. Enable GitHub Actions in your fork
+3. Set up container signing key:
 
-## 🛠️ Quick Start
-
-### Prerequisites
-- A GitHub Account
-- A machine running a bootc image (Bazzite, Bluefin, Aurora, or Fedora Atomic)
-- Experience with CLI tools
-
-### Installation Steps
-
-1. **🍴 Fork this repository** to your GitHub account
-2. **⚙️ Enable GitHub Actions** in your fork's Settings → Actions tab
-3. **🔑 Set up signing key** (see detailed instructions below)
-4. **🚀 Wait for builds** to complete in Actions tab
-5. **💻 Switch to your image** using one of the commands above
-
-## 🔐 Container Signing Setup
-
-Container signing is **required** for security. Follow these steps:
-
-### Generate Keys
 ```bash
 COSIGN_PASSWORD="" cosign generate-key-pair
 ```
 
-### Add to GitHub Secrets
-1. Go to your repository → Settings → Secrets and variables → Actions
-2. Click "New repository secret"
-3. Name: `SIGNING_SECRET`
-4. Paste contents of `cosign.key` (not `cosign.pub`!)
-5. Save
+4. Add `cosign.key` as `SIGNING_SECRET` to repository secrets
+5. Wait for builds to complete, then switch to your image
 
-> ⚠️ **Never commit `cosign.key` to your repository!**
+## Build System
 
-## 🏗️ Build System
+- Matrix build strategy for both variants
+- Excludes Firefox to avoid package conflicts
+- Installs Cosmic desktop with development tools
+- Configures proper system services
 
-This repository uses a sophisticated matrix build strategy:
+## Files
 
-- **Matrix Strategy**: Automatically builds both variants in parallel
-- **Variant Detection**: Build script adapts based on VARIANT environment variable
-- **Conflict Resolution**: Excludes Firefox to avoid dependency conflicts
-- **COPR Integration**: Installs additional tools from community repositories
-- **Service Management**: Proper display manager and GPU service configuration
-
-## 📚 Repository Contents
-
-### [Containerfile](./Containerfile)
-Multi-stage build with BASE_IMAGE and VARIANT support for flexible base image selection.
-
-### [build.sh](./build_files/build.sh)
-Comprehensive build script that:
-- Removes conflicting packages (Firefox exclusion)
-- Installs Cosmic desktop environment
-- Adds development and gaming tools
-- Configures system services properly
-
-### [.github/workflows/build.yml](./.github/workflows/build.yml)
-GitHub Actions matrix workflow that builds both variants automatically with proper artifacthub integration.
-
-### [Justfile](./Justfile)
-Local development commands for building and testing images:
-```bash
-just build-all                    # Build both variants locally
-just build bazzite-cosmic latest    # Build specific variant
-```
-
-## 💬 Community & Support
-
-- [Universal Blue Forums](https://universal-blue.discourse.group/) - Community discussions
-- [Universal Blue Discord](https://discord.gg/WEu6BdFEtp) - Real-time chat support
-- [bootc Documentation](https://github.com/bootc-dev/bootc/discussions) - bootc-specific issues
-- [Cosmic Desktop](https://github.com/pop-os/cosmic-epoch) - Desktop environment issues
-
-## 🙏 Acknowledgments
-
-- [Universal Blue](https://universal-blue.org/) - Base Bazzite system and build infrastructure
-- [System76](https://system76.com/) - Cosmic desktop environment development
-- [Fedora Project](https://fedoraproject.org/) - Base packages and repositories
-
----
-
-<div align="center">
-
-**⭐ If you find this useful, give it a star!**
-
-</div>
+- `Containerfile` - Multi-stage build with variant support
+- `build.sh` - Main customization script
+- `build.yml` - GitHub Actions workflow
+- `Justfile` - Local build commands
 
 # Repository Contents
 
