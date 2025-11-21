@@ -15,8 +15,7 @@ ENV VARIANT=${VARIANT}
 
 RUN mkdir -p /var/lib/nix && \
     mkdir -p /nix && \
-    chmod 0755 /nix && \
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm -- --no-start-daemon
+    chmod 0755 /nix
 
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
