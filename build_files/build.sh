@@ -102,8 +102,8 @@ log "Installing Nix ..."
 rm -rf /usr/local/bin
 curl -fsSL https://install.determinate.systems/nix | \
   sh -s -- install \
-  --determinate
-  --no-start-daemon
+  --determinate \
+  --no-start-daemon \
   --no-confirm
 
 # Add Nix to PATH for this build session
