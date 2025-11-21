@@ -99,17 +99,12 @@ cleanup_space
 
 # --- Section 6: Install Determinate Nix ---
 log "Installing Nix ..."
-curl -L https://github.com/DavHau/nix-portable/releases/latest/download/nix-portable-$(uname -m) > /usr/local/bin/nix-portable
-chmod +x /usr/local/bin/nix-portable
-
-# Create symlinks for common nix command
-ln -sf /usr/local/bin/nix-portable /usr/local/bin/nix
-ln -sf /usr/local/bin/nix-portable /usr/local/bin/nix-shell
-ln -sf /usr/local/bin/nix-portable /usr/local/bin/nix-run
-
-# Test the installation
-log "Testing Nix Portable installation..."
-/usr/local/bin/nix-portable nix run nixpkgs#hello --version || log "Warning: Nix test failed"
+rm -rf /usr/local/bin
+curl -fsSL https://install.determinate.systems/nix | \
+  sh -s -- install \
+  --determinate
+  --no-start-daemon
+  --no-confirm
 
 # Add Nix to PATH for this build session
 export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
