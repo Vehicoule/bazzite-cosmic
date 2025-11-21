@@ -13,6 +13,8 @@ ARG BASE_IMAGE
 ARG VARIANT=cosmic
 ENV VARIANT=${VARIANT}
 
+RUN mkdir -p /usr/local/bin /nix
+
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
@@ -20,7 +22,7 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     /ctx/build.sh && \
     ostree container commit
 
-RUN mkdir -p /usr/local/bin /nix
+ENV PATH="${PATH}:/usr/local/bin:/nix/var/nix/profiles/default/bin"
 
 ### LINTING
 ## Verify final image and contents are correct.
