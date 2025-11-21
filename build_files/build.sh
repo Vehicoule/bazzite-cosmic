@@ -100,11 +100,11 @@ cleanup_space
 # --- Section 6: Install Determinate Nix ---
 log "Installing Nix ..."
 rm -rf /usr/local/bin
-curl -fsSL https://install.determinate.systems/nix | \
-  sh -s -- install \
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
+  sh -s -- install linux \
   --determinate \
-  --no-start-daemon \
-  --no-confirm
+  --no-confirm \
+  -- --no-start-daemon
 
 # Add Nix to PATH for this build session
 export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
