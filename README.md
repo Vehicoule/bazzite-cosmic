@@ -20,12 +20,12 @@ sudo bootc switch ghcr.io/vehicoule/bazzite-cosmic-nvidia:latest
 
 #### bazzite-cosmic
 ```bash
-sudo rpm-ostree rebase ostree-image-signed:ghcr.io/vehicoule/bazzite-cosmic:latest
+rpm-ostree rebase ostree-image-signed:docker://ghcr.io/vehicoule/bazzite-cosmic:latest
 ```
 
 #### bazzite-cosmic-nvidia
 ```bash
-sudo rpm-ostree rebase ostree-image-signed:ghcr.io/vehicoule/bazzite-cosmic-nvidia:latest
+rpm-ostree rebase ostree-image-signed:docker://ghcr.io/vehicoule/bazzite-cosmic-nvidia:latest
 ```
 
 # Building Disk Images
