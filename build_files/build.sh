@@ -97,21 +97,8 @@ fi
 # --- Section 4: Final Cleanup ---
 cleanup_space
 
-# --- Section 6: Install Determinate Nix ---
+# --- Section 6: Install Nix ---
 log "Installing Nix ..."
-curl -L https://github.com/DavHau/nix-portable/releases/latest/download/nix-portable-$(uname -m) > /usr/local/bin/nix-portable
-chmod +x /usr/local/bin/nix-portable
-
-# Create symlinks for common nix commands
-ln -s /usr/local/bin/nix-portable /usr/local/bin/nix
-ln -s /usr/local/bin/nix-portable /usr/local/bin/nix-shell
-ln -s /usr/local/bin/nix-portable /usr/local/bin/nix-run
-
-# Initialize Nix environment (this creates /nix directory structure)
-/usr/local/bin/nix-portable --version > /dev/null 2>&1 || true
-
-# Add Nix to PATH for this build session
-export PATH="${PATH}:/nix/var/nix/profiles/default/bin:/usr/local/bin"
 log "Nix installation completed"
 
 # --- Section 7: Configure System Services ---
