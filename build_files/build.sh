@@ -102,9 +102,7 @@ log "Installing Determinate Nix with systemd support..."
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
     sh -s -- install linux \
     --determinate \
-    --extra-conf "sandbox = false" \
-    --no-start-daemon \
-    --no-confirm
+    --no-start-daemon
 
 # Add Nix to PATH for this build session
 export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
