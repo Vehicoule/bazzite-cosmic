@@ -34,6 +34,28 @@ log "Building variant: $VARIANT"
 
 if [[ "${VARIANT}" == "cosmic" || "${VARIANT}" == "cosmic-nvidia" ]]; then
 
+# --- Section 0: Remove Conflicting Packages ---
+log "Removing conflicting packages..."
+
+# Remove XWayland video bridge (conflicts with Cosmic)
+dnf5 remove -y xwaylandvideobridge || log "Warning: xwaylandvideobridge not found or already removed"
+
+# Remove KDE/Plasma desktop packages if present from base image
+# Get mandatory packages from kde-desktop group and remove them
+if dnf5 group info kde-desktop &>/dev/null; then
+    dnf5 group info kde-desktop | \
+        sed -n '/^Mandatory packages\s*:/,/^\(Default\|Optional\) packages\s*:/ {
+            /^\(Default\|Optional\) packages\s*:/q
+            s/^.*:[[:space:]]*//p
+        }' | \
+        xargs dnf5 remove -y || log "Warning: Failed to remove some KDE packages"
+fi
+
+# Clean up after package removal
+dnf5 clean all && rm -rf /var/cache/dnf/*
+
+log "Conflicting packages removal completed"
+
 # --- Section 1: Install Cosmic Desktop and Essential Tools in Single Layer ---
 log "Installing Cosmic desktop environment and essential tools..."
 
@@ -75,12 +97,22 @@ fi
 # --- Section 4: Final Cleanup ---
 cleanup_space
 
-# --- Section 5: Create Nix directory (without installation) ---
-log "Creating Nix directory structure..."
-mkdir -p /nix
-log "Nix directory created at /nix"
+# --- Section 6: Install Determinate Nix ---
+log "Installing Determinate Nix with systemd support..."
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
+    sh -s -- install linux \
+    --determinate \
+    --extra-conf "sandbox = false" \
+    --no-start-daemon \
+    --no-confirm
 
-# --- Section 6: Configure System Services ---
+# Add Nix to PATH for this build session
+export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
+log "Determinate Nix installation completed"
+log "Testing Nix installation..."
+nix run nixpkgs#hello --version || log "Warning: Nix test failed"
+
+# --- Section 7: Configure System Services ---
 log "Configuring system services..."
 
 # Disable other display managers to prevent conflicts with Cosmic's greeter
@@ -93,6 +125,9 @@ systemctl enable cosmic-greeter || handle_error "Failed to enable cosmic-greeter
 systemctl enable lactd || handle_error "Failed to enable lactd"
 systemctl enable podman.socket || handle_error "Failed to enable podman.socket"
 
+# Enable Nix daemon for multi-user support
+systemctl enable nix-daemon || handle_error "Failed to enable nix-daemon"
+
 # NVIDIA variant specific services
 if [[ "${VARIANT}" == "cosmic-nvidia" ]]; then
     log "Configuring NVIDIA-specific services..."
@@ -102,7 +137,7 @@ fi
 
 fi
 
-# --- Final Cleanup ---
+# --- Section 8: Final Cleanup ---
 cleanup_space
 
 # --- Final Summary ---
@@ -111,7 +146,7 @@ log "Base Image: $BASE_IMAGE"
 log "Variant: $VARIANT"
 log "Installed components:"
 log "  - Cosmic Desktop Environment"
-log "  - Nix Package Manager directory"
+log "  - Determinate Nix Package Manager"
 log "  - Development Tools (Git, Neovim, Zed)"
 log "  - System Utilities (htop, btop, ncdu, etc.)"
 log "  - Multimedia Tools (VLC, ffmpeg)"
