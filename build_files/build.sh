@@ -124,9 +124,6 @@ systemctl enable cosmic-greeter || handle_error "Failed to enable cosmic-greeter
 systemctl enable lactd || handle_error "Failed to enable lactd"
 systemctl enable podman.socket || handle_error "Failed to enable podman.socket"
 
-# Enable Nix daemon for multi-user support
-systemctl enable nix-daemon || handle_error "Failed to enable nix-daemon"
-
 # NVIDIA variant specific services
 if [[ "${VARIANT}" == "cosmic-nvidia" ]]; then
     log "Configuring NVIDIA-specific services..."
@@ -145,7 +142,7 @@ log "Base Image: $BASE_IMAGE"
 log "Variant: $VARIANT"
 log "Installed components:"
 log "  - Cosmic Desktop Environment"
-log "  - Determinate Nix Package Manager"
+log "  - Nix Package Manager"
 log "  - Development Tools (Git, Neovim, Zed)"
 log "  - System Utilities (htop, btop, ncdu, etc.)"
 log "  - Multimedia Tools (VLC, ffmpeg)"
