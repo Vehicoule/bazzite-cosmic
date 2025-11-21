@@ -19,12 +19,6 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=tmpfs,dst=/tmp \
     /ctx/build.sh && \
     ostree container commit
-
-# Set working directory for Nix flakes
-WORKDIR /src
-
-# Add Nix to PATH for the final image
-ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
     
 ### LINTING
 ## Verify final image and contents are correct.
