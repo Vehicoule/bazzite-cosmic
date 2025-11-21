@@ -1,154 +1,149 @@
-# Bazzite Cosmic Images
+# 🚀 Bazzite Cosmic Images
+
+<div align="center">
+
+![Bazzite Cosmic](https://img.shields.io/badge/Bazzite-Cosmic-blue?style=for-the-badge&logo=fedora)
+![Cosmic Desktop](https://img.shields.io/badge/Cosmic-Desktop-purple?style=for-the-badge&logo=pop-os)
+![Bootc](https://img.shields.io/badge/Bootc-Ready-green?style=for-the-badge)
+
+</div>
 
 This repository builds custom [bootc](https://github.com/bootc-dev/bootc) images that combine the gaming and development optimizations of [Bazzite](https://github.com/ublue-os/bazzite) with the modern [Cosmic](https://github.com/pop-os/cosmic-epoch) desktop environment. These images replace the default KDE desktop with Cosmic while preserving Bazzite's hardware support and gaming features.
 
-# Community
+## ✨ Features
 
-If you have questions about this template after following the instructions, try the following spaces:
-- [Universal Blue Forums](https://universal-blue.discourse.group/)
-- [Universal Blue Discord](https://discord.gg/WEu6BdFEtp)
-- [bootc discussion forums](https://github.com/bootc-dev/bootc/discussions) - This is not an Universal Blue managed space, but is an excellent resource if you run into issues with building bootc images.
+- 🎮 **Gaming Optimized** - Built on Bazzite DX with all gaming enhancements
+- 🖥️ **Modern Desktop** - Latest Cosmic desktop environment with Wayland compositor
+- 🔧 **Developer Ready** - Includes development tools and utilities out of the box
+- 📦 **Package Manager** - Nix directory structure for advanced package management
+- 🎯 **GPU Support** - Optimized for both AMD and NVIDIA hardware
+- 🚀 **Performance Tuned** - Btrfs filesystem and performance optimizations
 
-# How to Use
+## 🎯 Available Images
 
-To get started on your first bootc image, simply read and follow the steps in the next few headings.
-If you prefer instructions in video form, TesterTech created an excellent tutorial, embedded below.
+### 📦 Base Variant
+<details>
+<summary><strong>bazzite-cosmic</strong> - Bazzite DX with Cosmic desktop</summary>
 
-[![Video Tutorial](https://img.youtube.com/vi/IxBl11Zmq5w/0.jpg)](https://www.youtube.com/watch?v=IxBl11Zmq5wE)
+Perfect for general use, development, and gaming without proprietary NVIDIA drivers.
 
-## Step 0: Prerequisites
+```bash
+sudo bootc switch ghcr.io/<username>/bazzite-cosmic:latest
+```
 
-These steps assume you have the following:
-- A Github Account
-- A machine running a bootc image (e.g. Bazzite, Bluefin, Aurora, or Fedora Atomic)
-- Experience installing and using CLI programs
+**Includes:**
+- Cosmic Desktop Environment
+- Development Tools (Neovim, Git, Zed)
+- System Utilities (htop, btop, ncdu)
+- Gaming Support (Gamemode)
+- Multimedia Tools (VLC, ffmpeg)
+- GPU Control (LACT for AMD)
 
-## Step 1: Preparing the Template
+</details>
 
-### Step 1a: Copying the Template
+### 🎮 NVIDIA Variant  
+<details>
+<summary><strong>bazzite-cosmic-nvidia</strong> - Bazzite DX NVIDIA with Cosmic desktop</summary>
 
-Select `Use this Template` on this page. You can set the name and description of your repository to whatever you would like, but all other settings should be left untouched.
+Optimized for NVIDIA GPUs with proprietary drivers and CUDA support.
 
-Once you have finished copying the template, you need to enable the Github Actions workflows for your new repository.
-To enable the workflows, go to the `Actions` tab of the new repository and click the button to enable workflows.
+```bash
+sudo bootc switch ghcr.io/<username>/bazzite-cosmic-nvidia:latest
+```
 
-### Step 1b: Cloning the New Repository
+**Includes everything from base variant plus:**
+- NVIDIA proprietary drivers
+- CUDA support
+- NVIDIA settings and control tools
+- GPU persistence and fallback services
 
-Here I will defer to the much superior GitHub documentation on the matter. You can use whichever method is easiest.
-[GitHub Documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
+</details>
 
-Once you have the repository on your local drive, proceed to the next step.
+## 🛠️ Quick Start
 
-## Step 2: Initial Setup
+### Prerequisites
+- A GitHub Account
+- A machine running a bootc image (Bazzite, Bluefin, Aurora, or Fedora Atomic)
+- Experience with CLI tools
 
-### Step 2a: Creating a Cosign Key
+### Installation Steps
 
-Container signing is important for end-user security and is enabled on all Universal Blue images. By default the image builds *will fail* if you don't.
+1. **🍴 Fork this repository** to your GitHub account
+2. **⚙️ Enable GitHub Actions** in your fork's Settings → Actions tab
+3. **🔑 Set up signing key** (see detailed instructions below)
+4. **🚀 Wait for builds** to complete in Actions tab
+5. **💻 Switch to your image** using one of the commands above
 
-First, install the [cosign CLI tool](https://edu.chainguard.dev/open-source/sigstore/cosign/how-to-install-cosign/#installing-cosign-with-the-cosign-binary)
-With the cosign tool installed, run inside your repo folder:
+## 🔐 Container Signing Setup
 
+Container signing is **required** for security. Follow these steps:
+
+### Generate Keys
 ```bash
 COSIGN_PASSWORD="" cosign generate-key-pair
 ```
 
-The signing key will be used in GitHub Actions and will not work if it is password protected.
+### Add to GitHub Secrets
+1. Go to your repository → Settings → Secrets and variables → Actions
+2. Click "New repository secret"
+3. Name: `SIGNING_SECRET`
+4. Paste contents of `cosign.key` (not `cosign.pub`!)
+5. Save
 
-> [!WARNING]
-> Be careful to *never* accidentally commit `cosign.key` into your git repo. If this key goes out to the public, the security of your repository is compromised.
+> ⚠️ **Never commit `cosign.key` to your repository!**
 
-Next, you need to add the key to GitHub. This makes use of GitHub's secret signing system.
+## 🏗️ Build System
 
-<details>
-    <summary>Using the Github Web Interface (preferred)</summary>
+This repository uses a sophisticated matrix build strategy:
 
-Go to your repository settings, under `Secrets and Variables` -> `Actions`
-![image](https://user-images.githubusercontent.com/1264109/216735595-0ecf1b66-b9ee-439e-87d7-c8cc43c2110a.png)
-Add a new secret and name it `SIGNING_SECRET`, then paste the contents of `cosign.key` into the secret and save it. Make sure it's the .key file and not the .pub file. Once done, it should look like this:
-![image](https://user-images.githubusercontent.com/1264109/216735690-2d19271f-cee2-45ac-a039-23e6a4c16b34.png)
-</details>
-<details>
-<summary>Using the Github CLI</summary>
+- **Matrix Strategy**: Automatically builds both variants in parallel
+- **Variant Detection**: Build script adapts based on VARIANT environment variable
+- **Conflict Resolution**: Excludes Firefox to avoid dependency conflicts
+- **COPR Integration**: Installs additional tools from community repositories
+- **Service Management**: Proper display manager and GPU service configuration
 
-If you have the `github-cli` installed, run:
+## 📚 Repository Contents
 
+### [Containerfile](./Containerfile)
+Multi-stage build with BASE_IMAGE and VARIANT support for flexible base image selection.
+
+### [build.sh](./build_files/build.sh)
+Comprehensive build script that:
+- Removes conflicting packages (Firefox exclusion)
+- Installs Cosmic desktop environment
+- Adds development and gaming tools
+- Configures system services properly
+
+### [.github/workflows/build.yml](./.github/workflows/build.yml)
+GitHub Actions matrix workflow that builds both variants automatically with proper artifacthub integration.
+
+### [Justfile](./Justfile)
+Local development commands for building and testing images:
 ```bash
-gh secret set SIGNING_SECRET < cosign.key
-```
-</details>
-
-### Available Images
-
-This repository builds two variants of Bazzite Cosmic images:
-
-<details>
-<summary>
-
-**bazzite-cosmic**: Bazzite DX with Cosmic desktop environment
-</summary>
-
-```bash
-sudo bootc switch ghcr.io/<username>/bazzite-cosmic:latest
-```
-
-</details>
-
-<details>
-<summary>
-
-**bazzite-cosmic-nvidia**: Bazzite DX NVIDIA with Cosmic desktop environment and NVIDIA proprietary drivers
-</summary>
-
-```bash
-sudo bootc switch ghcr.io/<username>/bazzite-cosmic-nvidia:latest
+just build-all                    # Build both variants locally
+just build bazzite-cosmic latest    # Build specific variant
 ```
 
-</details>
+## 💬 Community & Support
 
-### What's Included
+- [Universal Blue Forums](https://universal-blue.discourse.group/) - Community discussions
+- [Universal Blue Discord](https://discord.gg/WEu6BdFEtp) - Real-time chat support
+- [bootc Documentation](https://github.com/bootc-dev/bootc/discussions) - bootc-specific issues
+- [Cosmic Desktop](https://github.com/pop-os/cosmic-epoch) - Desktop environment issues
 
-These images include:
-- Cosmic desktop environment with modern Wayland compositor
-- Base Bazzite DX features (development tools, gaming optimizations, hardware support)
-- NVIDIA driver support (on nvidia variant)
-- Development tools and utilities (neovim, ncdu, NetworkManager-tui)
-- Cosmic greeter for a polished login experience
+## 🙏 Acknowledgments
 
-## Step 2b: Base Images
+- [Universal Blue](https://universal-blue.org/) - Base Bazzite system and build infrastructure
+- [System76](https://system76.com/) - Cosmic desktop environment development
+- [Fedora Project](https://fedoraproject.org/) - Base packages and repositories
 
-This repository uses a matrix build strategy to automatically build both variants from their respective base images:
-- `ghcr.io/ublue-os/bazzite-dx:latest` → `bazzite-cosmic`
-- `ghcr.io/ublue-os/bazzite-dx-nvidia:latest` → `bazzite-cosmic-nvidia`
+---
 
-The base images are configured in the GitHub Actions workflow and can be modified there if needed.
+<div align="center">
 
-### Step 2c: Changing Names
+**⭐ If you find this useful, give it a star!**
 
-Change the first line in the [Justfile](./Justfile) to your image's name.
-
-To commit and push all the files changed and added in step 2 into your Github repository:
-```bash
-git add Containerfile Justfile cosign.pub
-git commit -m "Initial Setup"
-git push
-```
-Once pushed, go look at the Actions tab on your Github repository's page.  The green checkmark should be showing on the top commit, which means your new image is ready!
-
-## Step 3: Switch to Your Image
-
-From your bootc system, run the following command substituting in your Github username and desired variant:
-
-For the base version:
-```bash
-sudo bootc switch ghcr.io/<username>/bazzite-cosmic:latest
-```
-
-For the NVIDIA version:
-```bash
-sudo bootc switch ghcr.io/<username>/bazzite-cosmic-nvidia:latest
-```
-
-This should queue your image for the next reboot, which you can do immediately after the command finishes. You have officially set up your custom Cosmic image! See the following section for an explanation of the important parts of the template for customization.
+</div>
 
 # Repository Contents
 
