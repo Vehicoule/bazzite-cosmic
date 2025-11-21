@@ -13,8 +13,10 @@ ARG BASE_IMAGE
 ARG VARIANT=cosmic
 ENV VARIANT=${VARIANT}
 
-RUN mkdir -p /nix
-RUN curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
+RUN mkdir -p /var/lib/nix && \
+    mkdir -p /nix && \
+    chmod 0755 /nix && \
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
 
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
