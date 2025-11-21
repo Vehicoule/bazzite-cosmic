@@ -104,7 +104,7 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
   sh -s -- install linux \
   --determinate \
   --no-confirm \
-  -- --no-start-daemon
+  --no-start-daemon
 
 # Add Nix to PATH for this build session
 export PATH="${PATH}:/nix/var/nix/profiles/default/bin"
