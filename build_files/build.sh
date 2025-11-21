@@ -99,7 +99,7 @@ cleanup_space
 
 # --- Section 6: Install Determinate Nix ---
 log "Installing Nix ..."
-mkdir -p /nix
+mkdir -p /nix /usr/local/bin
 curl -L https://github.com/DavHau/nix-portable/releases/latest/download/nix-portable-$(uname -m) > /usr/local/bin/nix-portable
 chmod +x /usr/local/bin/nix-portable
 
