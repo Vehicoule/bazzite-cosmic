@@ -1,19 +1,15 @@
-# Bazzite Cosmic Images
+Bazzite Cosmic Images
 
-Custom [bootc](https://github.com/bootc-dev/bootc) images that combine Bazzite's gaming optimizations with [Cosmic](https://github.com/pop-os/cosmic-epoch) desktop environment.
+Custom bootc images that combine Bazzite's gaming optimizations with Cosmic desktop environment.
 
-## Images
+## Commands
 
 ### bazzite-cosmic
-Bazzite DX with Cosmic desktop. For general use and gaming without NVIDIA.
-
 ```bash
 sudo bootc switch ghcr.io/<username>/bazzite-cosmic:latest
 ```
 
-### bazzite-cosmic-nvidia  
-Bazzite DX NVIDIA with Cosmic desktop. For NVIDIA GPUs.
-
+### bazzite-cosmic-nvidia
 ```bash
 sudo bootc switch ghcr.io/<username>/bazzite-cosmic-nvidia:latest
 ```
@@ -21,29 +17,10 @@ sudo bootc switch ghcr.io/<username>/bazzite-cosmic-nvidia:latest
 ## Setup
 
 1. Fork this repository
-2. Enable GitHub Actions in your fork
-3. Set up container signing key:
-
-```bash
-COSIGN_PASSWORD="" cosign generate-key-pair
-```
-
+2. Enable GitHub Actions
+3. Create signing key: `COSIGN_PASSWORD="" cosign generate-key-pair`
 4. Add `cosign.key` as `SIGNING_SECRET` to repository secrets
-5. Wait for builds to complete, then switch to your image
-
-## Build System
-
-- Matrix build strategy for both variants
-- Excludes Firefox to avoid package conflicts
-- Installs Cosmic desktop with development tools
-- Configures proper system services
-
-## Files
-
-- `Containerfile` - Multi-stage build with variant support
-- `build.sh` - Main customization script
-- `build.yml` - GitHub Actions workflow
-- `Justfile` - Local build commands
+5. Wait for builds, then switch to your image
 
 # Repository Contents
 
