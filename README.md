@@ -6,12 +6,12 @@ Custom bootc images that combine Bazzite's gaming optimizations with Cosmic desk
 
 ### bazzite-cosmic
 ```bash
-sudo bootc switch ghcr.io/Vehicoule/bazzite-cosmic:latest
+sudo bootc switch ghcr.io/vehicoule/bazzite-cosmic:latest
 ```
 
 ### bazzite-cosmic-nvidia
 ```bash
-sudo bootc switch ghcr.io/Vehicoule/bazzite-cosmic-nvidia:latest
+sudo bootc switch ghcr.io/vehicoule/bazzite-cosmic-nvidia:latest
 ```
 
 # Building Disk Images
