@@ -1,9 +1,8 @@
-# Allow build scripts to be referenced without being copied into the final image
 FROM scratch AS ctx
 COPY build_files /
 
 # Base Image - will be overridden by build arg
-ARG BASE_IMAGE=ghcr.io/ublue-os/bazzite-dx:latest
+ARG BASE_IMAGE=ghcr.io/ublue-os/aurora-nvidia-open:latest
 FROM ${BASE_IMAGE}
 
 # Re-declare ARG to make it visible in this build stage
@@ -27,5 +26,4 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
 ENV PATH="${PATH}:/usr/local/bin:/nix/var/nix/profiles/default/bin"
 
 ### LINTING
-## Verify final image and contents are correct.
 RUN bootc container lint
